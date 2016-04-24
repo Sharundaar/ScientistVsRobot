@@ -1,0 +1,14 @@
+/Builds
+/Library
+
+/Assets/Editor/CrossPlatformInput/
+/Assets/Editor/ImageEffects/
+/Assets/Standard Assets/
+
+*.cache
+*.force
+
+*.sln
+*.suo
+*.csproj
+/Temp/
