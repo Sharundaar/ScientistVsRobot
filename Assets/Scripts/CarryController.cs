@@ -40,6 +40,11 @@ public class CarryController : MonoBehaviour {
     [SerializeField]
     private float ShootForce = 10.0f;
 
+    [SerializeField]
+    private float LetGoDistance = 2.0f;
+
+    private Rigidbody m_available = null;
+
     private Rigidbody m_carriedObject = null;
 
     private TriggerVar m_carry = new TriggerVar();
@@ -47,6 +52,9 @@ public class CarryController : MonoBehaviour {
     private TriggerVar m_shoot = new TriggerVar();
 
     private int m_carryMask = 0;
+
+    public delegate void CarryAvailableEventHandler(object _sender, bool _availability);
+    public event CarryAvailableEventHandler AvailabilityChanged;
 
     void Start()
     {
@@ -61,9 +69,44 @@ public class CarryController : MonoBehaviour {
         if(Physics.Raycast(View.position, View.forward, out hit, Range, m_carryMask))
         {
             Rigidbody body = hit.collider.attachedRigidbody;
-            if(body != null && carry)
+            if(body != null)
             {
-                m_carriedObject = body;
+                if(carry)
+                    m_carriedObject = body;
+
+                // raycast hit and no history
+                if(m_available == null)
+                {
+                    m_available = body;
+                    OnAvailabilityChanged(true);
+                }
+                else
+                {
+                    // raycast hit and history
+                    if(m_available != body)
+                    {
+                        m_available = body;
+                        OnAvailabilityChanged(true);
+                    }
+                }
+            }
+            else
+            {
+                // raycast hit but not a carryable (shouldn't be possible because mask)
+                if (m_available != null)
+                {
+                    m_available = null;
+                    OnAvailabilityChanged(false);
+                }
+            }
+        }
+        else
+        {
+            // raycast doens't hit and history
+            if(m_available != null)
+            {
+                m_available = null;
+                OnAvailabilityChanged(false);
             }
         }
 
@@ -84,8 +127,15 @@ public class CarryController : MonoBehaviour {
         if(m_carriedObject != null)
         {
             Vector3 targetSpeed = (Anchor.position - m_carriedObject.transform.position);
-            m_carriedObject.velocity = targetSpeed.normalized * Mathf.Min(MaxSpeed, targetSpeed.magnitude / Time.fixedDeltaTime);
-            m_carriedObject.MoveRotation(Quaternion.RotateTowards(m_carriedObject.rotation, Quaternion.LookRotation(Anchor.forward, Anchor.up), 10.0f));
+            if(targetSpeed.magnitude >= LetGoDistance)
+            {
+                Release();
+            }
+            else
+            {
+                m_carriedObject.velocity = targetSpeed.normalized * Mathf.Min(MaxSpeed, targetSpeed.magnitude / Time.fixedDeltaTime);
+                m_carriedObject.MoveRotation(Quaternion.RotateTowards(m_carriedObject.rotation, Quaternion.LookRotation(Anchor.forward, Anchor.up), 10.0f));
+            }
         }
     }
 
@@ -107,5 +157,11 @@ public class CarryController : MonoBehaviour {
     public bool IsCarrying()
     {
         return m_carriedObject != null;
+    }
+
+    private void OnAvailabilityChanged(bool _available)
+    {
+        if (AvailabilityChanged != null)
+            AvailabilityChanged(this, _available);
     }
 }
