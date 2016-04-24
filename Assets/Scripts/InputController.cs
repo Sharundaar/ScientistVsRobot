@@ -56,9 +56,7 @@ public class InputController : MonoBehaviour
                 m_carry.Carry();
 
             if (Input.GetButtonDown("Interact"))
-                m_interactor.Interact = true;
-            else
-                m_interactor.Interact = false;
+                m_interactor.Interact();
         }
     }
 }
