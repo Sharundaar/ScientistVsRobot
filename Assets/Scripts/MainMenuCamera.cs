@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class MainMenuCamera : MonoBehaviour {
     Camera m_camera;
@@ -63,6 +64,15 @@ public class MainMenuCamera : MonoBehaviour {
         else if(_text == "StartSingleplayer")
         {
             m_animator.SetTrigger("GoToLevelRoom");
+        }
+        else if(_text == "StartMultiplayer")
+        {
+
+        }
+
+        if(_text == "Level01")
+        {
+            SceneManager.LoadScene("Vault");
         }
     }
 }
