@@ -1,109 +1,112 @@
 ﻿
 using UnityEngine;
 
-public class Interactor : MonoBehaviour
+namespace DEngine
 {
-    class TriggerVar
+    public class Interactor : MonoBehaviour
     {
-        private bool m_data = false;
-        public bool Data
+        class TriggerVar
         {
-            get
+            private bool m_data = false;
+            public bool Data
             {
-                if (m_data)
+                get
                 {
-                    m_data = false;
-                    return true;
+                    if (m_data)
+                    {
+                        m_data = false;
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
+            }
+
+            public void Trigger()
+            {
+                m_data = true;
             }
         }
 
-        public void Trigger()
+        [SerializeField]
+        private float InteractionCooldown = 1.0f;
+
+        [SerializeField]
+        private float Range = 2.5f;
+
+        [SerializeField]
+        private Transform View;
+
+        private float m_lastInteractionStamp = 0;
+
+        private TriggerVar m_interact = new TriggerVar();
+
+        private IInteractable m_available = null;
+
+        public delegate void InteractionAvailableEventHandler(object _sender, bool _available);
+        public event InteractionAvailableEventHandler AvailabilityChanged;
+
+        private void Update()
         {
-            m_data = true;
-        }
-    }
+            bool interact = m_interact.Data;
 
-    [SerializeField]
-    private float InteractionCooldown = 1.0f;
-
-    [SerializeField]
-    private float Range = 2.5f;
-
-    [SerializeField]
-    private Transform View;
-
-    private float m_lastInteractionStamp = 0;
-
-    private TriggerVar m_interact;
-
-    private IInteractable m_available = null;
-
-    public delegate void InteractionAvailableEventHandler(object _sender, bool _available);
-    public event InteractionAvailableEventHandler AvailabilityChanged;
-
-    private void Update()
-    {
-        bool interact = m_interact.Data;
-
-        RaycastHit hit;
-        if(Physics.Raycast(View.position, View.forward, out hit, Range))
-        {
-            IInteractable interactable = hit.collider.GetComponent<IInteractable>();
-            if(interactable != null)
+            RaycastHit hit;
+            if (Physics.Raycast(View.position, View.forward, out hit, Range))
             {
-                if(interact && Time.time - m_lastInteractionStamp > InteractionCooldown)
+                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+                if (interactable != null)
                 {
-                    interactable.Interact();
-                    m_lastInteractionStamp = Time.time;
-                }
+                    if (interact && Time.time - m_lastInteractionStamp > InteractionCooldown)
+                    {
+                        interactable.Interact();
+                        m_lastInteractionStamp = Time.time;
+                    }
 
-                // raycast hit and no interactable history
-                if(m_available == null)
-                {
-                    m_available = interactable;
-                    OnAvailabilityChanged(true);
-                }
-                else
-                {
-                    // raycast hit but the interactable is different from the last one
-                    if(m_available != interactable)
+                    // raycast hit and no interactable history
+                    if (m_available == null)
                     {
                         m_available = interactable;
                         OnAvailabilityChanged(true);
+                    }
+                    else
+                    {
+                        // raycast hit but the interactable is different from the last one
+                        if (m_available != interactable)
+                        {
+                            m_available = interactable;
+                            OnAvailabilityChanged(true);
+                        }
+                    }
+                }
+                else
+                {
+                    // raycast hit but no interactable
+                    if (m_available != null)
+                    {
+                        m_available = null;
+                        OnAvailabilityChanged(false);
                     }
                 }
             }
             else
             {
-                // raycast hit but no interactable
-                if(m_available != null)
+                // Raycast doesn't hit and history
+                if (m_available != null)
                 {
                     m_available = null;
                     OnAvailabilityChanged(false);
                 }
             }
         }
-        else
+
+        private void OnAvailabilityChanged(bool _availability)
         {
-            // Raycast doesn't hit and history
-            if(m_available != null)
-            {
-                m_available = null;
-                OnAvailabilityChanged(false);
-            }
+            if (AvailabilityChanged != null)
+                AvailabilityChanged(this, _availability);
         }
-    }
 
-    private void OnAvailabilityChanged(bool _availability)
-    {
-        if (AvailabilityChanged != null)
-            AvailabilityChanged(this, _availability);
-    }
-
-    public void Interact()
-    {
-        m_interact.Trigger();
+        public void Interact()
+        {
+            m_interact.Trigger();
+        }
     }
 }

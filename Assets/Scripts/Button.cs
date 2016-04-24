@@ -1,27 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Button : MonoBehaviour, IInteractable {
 
-	[SerializeField]
-	private GameObject Target;
+namespace DEngine
+{
+    public class Button : MonoBehaviour, IInteractable {
 
-    [SerializeField]
-    private bool Deactivate = false;
+	    [SerializeField]
+	    private GameObject Target;
 
-    private Animator m_animator;
+        [SerializeField]
+        private bool Deactivate = false;
 
-    private void Start()
-    {
-        m_animator = GetComponent<Animator>();
+        private Animator m_animator;
+
+        private void Start()
+        {
+            m_animator = GetComponent<Animator>();
+        }
+
+	    public void Interact()
+	    {
+            if(!Deactivate)
+		        Target.GetComponent<IActivable>().Activate();
+            else
+                Target.GetComponent<IActivable>().Deactivate();
+            m_animator.SetTrigger("Push");
+	    }
     }
-
-	public void Interact()
-	{
-        if(!Deactivate)
-		    Target.GetComponent<IActivable>().Activate();
-        else
-            Target.GetComponent<IActivable>().Deactivate();
-        m_animator.SetTrigger("Push");
-	}
 }
