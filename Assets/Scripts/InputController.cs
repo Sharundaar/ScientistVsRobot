@@ -27,7 +27,8 @@ namespace DEngine
         {
             float horizontal = Input.GetAxis("Horizontal");
             float vertical = Input.GetAxis("Vertical");
-            m_player.MoveTo(m_player.transform.forward * vertical + m_player.transform.right * horizontal, Mathf.Clamp01(Mathf.Abs(horizontal) + Mathf.Abs(vertical)));
+            Vector3 move = m_player.transform.forward * vertical + m_player.transform.right * horizontal;
+            m_player.MoveTo(move, Mathf.Clamp01(move.magnitude));
 
 
             float forwardChange = Input.GetAxis("LookHorizontal");

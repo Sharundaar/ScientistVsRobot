@@ -11,6 +11,9 @@ namespace DEngine
         public PlayerController HumanPrefab;
         public PlayerController RobotPrefab;
 
+        [SerializeField]
+        private bool AddInputController = false;
+
         /*
         public SpawnPoint CurrentHumanSpawnPoint
         {
@@ -117,6 +120,9 @@ namespace DEngine
                 Human = GameObject.Instantiate<PlayerController>(HumanPrefab);
                 Human.transform.position = CurrentHumanSpawnPoint.transform.position;
                 Human.name = "Human";
+
+                if (AddInputController)
+                    Human.gameObject.AddComponent<InputController>();
             }
 
             if (Robot == null && CurrentRobotSpawnPoint != null)
@@ -124,6 +130,9 @@ namespace DEngine
                 Robot = GameObject.Instantiate<PlayerController>(RobotPrefab);
                 Robot.transform.position = CurrentRobotSpawnPoint.transform.position;
                 Robot.name = "Robot";
+
+                if (AddInputController)
+                    Robot.gameObject.AddComponent<InputController>();
             }
         }
 

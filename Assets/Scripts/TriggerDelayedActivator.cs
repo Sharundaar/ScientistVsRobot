@@ -24,6 +24,15 @@ namespace DEngine
         private bool m_triggered = false;
         private float m_timer = 0;
 
+        private int s_HumanLayer;
+        private int s_RobotLayer;
+
+        void Start()
+        {
+            s_HumanLayer = LayerMask.NameToLayer("HumanPlayer");
+            s_RobotLayer = LayerMask.NameToLayer("RobotPlayer");
+        }
+
         void Update()
         {
             if (m_triggered)
@@ -50,15 +59,22 @@ namespace DEngine
 
         void OnTriggerEnter(Collider _collider)
         {
-            if (!m_triggered)
-                m_triggered = true;
+            if (_collider.gameObject.layer == s_HumanLayer || _collider.gameObject.layer == s_RobotLayer)
+            {
+                if (!m_triggered)
+                    m_triggered = true;
+            }
+
         }
 
         void OnTriggerExit(Collider _collider)
         {
-            if (InvertOnExit && !m_triggered)
+            if (_collider.gameObject.layer == s_HumanLayer || _collider.gameObject.layer == s_RobotLayer)
             {
-                m_triggered = true;
+                if (InvertOnExit && !m_triggered)
+                {
+                    m_triggered = true;
+                }
             }
         }
     }

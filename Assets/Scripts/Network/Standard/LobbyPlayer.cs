@@ -22,6 +22,7 @@ namespace UnityStandardAssets.Network
         public InputField nameInput;
         public Button readyButton;
         public Button waitingPlayerButton;
+        public Text playerTypeText;
 
         //OnMyName function will be invoked on clients when server change the value of playerName
         [SyncVar(hook = "OnMyName")]
@@ -295,6 +296,11 @@ namespace UnityStandardAssets.Network
                     break;
                 }
             }
+        }
+
+        public void UpdateDisplayType(string _type)
+        {
+            playerTypeText.text = _type;
         }
     }
 }

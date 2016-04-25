@@ -31,6 +31,17 @@ namespace DEngine
 
             m_multiplayerMenu.SetActive(false);
             m_state = MainMenuState.MAIN;
+
+            InitializeLevels();
+        }
+
+        void InitializeLevels()
+        {
+            foreach(var text in FindObjectsOfType<TextScript>())
+            {
+                if (text.Text == "Level03")
+                    text.Enable(false);
+            }
         }
 
         void Update()
@@ -52,21 +63,25 @@ namespace DEngine
                 }
                 else
                 {
-                    if (m_currentText != text)
+                    if(!text.Disabled)
                     {
-                        if (m_currentText != null)
-                            m_currentText.Highlight(false);
-                        m_currentText = text;
+                        if (m_currentText != text)
+                        {
+                            if (m_currentText != null)
+                                m_currentText.Highlight(false);
+                            m_currentText = text;
+                        }
+
+                        if (!m_currentText.Highlighted)
+                            m_currentText.Highlight(true);
+
+                        if (Input.GetMouseButtonDown(0))
+                        {
+                            m_currentText.Click();
+                            Click(m_currentText.Text);
+                        }
                     }
 
-                    if (!m_currentText.Highlighted)
-                        m_currentText.Highlight(true);
-
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        m_currentText.Click();
-                        Click(m_currentText.Text);
-                    }
                 }
             }
             else
@@ -96,7 +111,11 @@ namespace DEngine
 
             if (_text == "Level01")
             {
-                SceneManager.LoadScene("Vault");
+                SceneManager.LoadScene("Level1");
+            }
+            else if(_text == "Level02")
+            {
+                SceneManager.LoadScene("Level2");
             }
         }
     }

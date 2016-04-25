@@ -26,7 +26,7 @@ namespace DEngine
         public bool Highlighted { get; set; }
         public bool Disabled { get; set; }
 
-        private void Start()
+        private void Awake()
         {
             m_renderer = GetComponent<Renderer>();
             m_renderer.material.color = NormalColor;
